@@ -7,6 +7,7 @@ import io.micronaut.context.annotation.Property;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,7 @@ import java.nio.file.Paths;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @MicronautTest
 @WireMockTest(httpPort = 8888)
@@ -49,6 +51,17 @@ class PokeApiClientTest {
                 () -> assertThat(mewtwo.flavorTextEntries()).isNotEmpty(),
                 () -> assertThat(mewtwo.flavorTextEntries().get(0).flavorText()).contains("It was created by\na scientist after\nyears of horrific\fgene splicing"),
                 () -> assertThat(mewtwo.flavorTextEntries().get(0).language().name()).isEqualTo("en")
+        );
+    }
+
+    @Test
+    @DisplayName("When calling getPokemonInfo with blank string as name, should throws")
+    void getPokemonInfoWithBlankStringTest() {
+        final String blankString = " ";
+
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> pokeApiClient.getPokemonInfo(blankString)
         );
     }
 }
