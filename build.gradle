@@ -15,11 +15,13 @@ dependencies {
     annotationProcessor("io.micronaut:micronaut-http-validation")
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
 
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("io.micronaut.validation:micronaut-validation")
 
     compileOnly("io.micronaut:micronaut-http-client")
+    compileOnly("org.projectlombok:lombok:1.18.36")
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.yaml:snakeyaml")
@@ -27,6 +29,12 @@ dependencies {
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.wiremock:wiremock:3.11.0")
     testImplementation("org.assertj:assertj-core:3.27.2")
+    testImplementation("org.mockito:mockito-core:2.1.0")
+    testImplementation("org.instancio:instancio-junit:5.3.0")
+
+    testCompileOnly("org.projectlombok:lombok:1.18.36")
+
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 }
 
 
