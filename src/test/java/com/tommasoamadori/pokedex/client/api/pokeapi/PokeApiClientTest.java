@@ -1,24 +1,31 @@
 package com.tommasoamadori.pokedex.client.api.pokeapi;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.PokeApiResponse;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.model.HabitatModel;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.InstanceOfAssertFactories.INSTANT;
+import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
 @WireMockTest(httpPort = 8888)
@@ -62,6 +69,38 @@ class PokeApiClientTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> pokeApiClient.getPokemonInfo(blankString)
+        );
+    }
+
+    @MethodSource("provideErrorHttp")
+    @ParameterizedTest(name = "When getPokemonInfo return an error status code ({1}), should throws HttpClientResponseException")
+    void getPokemonInfoWithErrorStatusShouldThrowsHttpClientResponseException(ResponseDefinitionBuilder response, int code) {
+        final String pokemonName = Instancio.of(String.class).withSeed(1).create();
+
+        stubFor(get(urlEqualTo("/api/v2/pokemon-species/" + pokemonName))
+                .willReturn(response));
+
+        assertThrows(
+                HttpClientResponseException.class,
+                () -> pokeApiClient.getPokemonInfo(pokemonName)
+        );
+    }
+
+    @Test
+    @DisplayName("When getPokemonInfo return a 404, should NOT throws HttpClientResponseException")
+    void getPokemonInfoWith404ShouldNotThrowsHttpClientResponseException() {
+        final String pokemonName = Instancio.of(String.class).withSeed(1).create();
+
+        stubFor(get(urlEqualTo("/api/v2/pokemon-species/" + pokemonName))
+                .willReturn(notFound()));
+
+        assertDoesNotThrow(() -> pokeApiClient.getPokemonInfo(pokemonName));
+    }
+
+    private static Stream<Arguments> provideErrorHttp() {
+        return Stream.of(
+            Arguments.of(badRequest(), HttpResponse.badRequest().code()),
+            Arguments.of(serverError(), HttpResponse.serverError().code())
         );
     }
 }
