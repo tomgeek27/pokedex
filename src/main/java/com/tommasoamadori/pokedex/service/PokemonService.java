@@ -11,6 +11,9 @@ import io.micronaut.http.HttpResponse;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service responsible for retrieving Pokémon information.
+ */
 @Singleton
 @Primary
 @RequiredArgsConstructor
@@ -18,6 +21,15 @@ public class PokemonService implements PokemonBaseService {
 
     private final PokeApiClient pokeApiClient;
 
+    /**
+     * Retrieves information about a Pokémon, including its name,
+     * habitat, description, and legendary status.
+     *
+     * @param name The name of the Pokémon to retrieve.
+     * @return A {@link PokemonInfoResponse} containing the Pokémon details.
+     * @throws NoValidFlavorTextException if no English flavor text is found.
+     * @throws UnexpectedResponseBodyException if the API response is invalid.
+     */
     @Override
     public PokemonInfoResponse getPokemonInfo(String name) {
         HttpResponse<PokeApiResponse> pokemonInfoResponse = pokeApiClient.getPokemonInfo(name);
