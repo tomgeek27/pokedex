@@ -1,6 +1,6 @@
 package com.tommasoamadori.pokedex.controller;
 
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.exception.PokemonNotFoundException;
 import com.tommasoamadori.pokedex.service.PokemonBaseService;
 import io.micronaut.http.HttpResponse;

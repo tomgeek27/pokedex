@@ -1,6 +1,6 @@
 package com.tommasoamadori.pokedex.service;
 
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
 import jakarta.inject.Singleton;
 
 @Singleton

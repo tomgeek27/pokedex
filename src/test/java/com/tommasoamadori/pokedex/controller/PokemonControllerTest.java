@@ -1,6 +1,6 @@
 package com.tommasoamadori.pokedex.controller;
 
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.service.PokemonService;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;

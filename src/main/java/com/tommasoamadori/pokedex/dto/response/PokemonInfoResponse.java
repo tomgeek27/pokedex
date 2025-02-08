@@ -1,4 +1,4 @@
-package com.tommasoamadori.pokedex.dto.response.pokeapi;
+package com.tommasoamadori.pokedex.dto.response;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Builder;

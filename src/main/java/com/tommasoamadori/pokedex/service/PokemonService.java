@@ -2,8 +2,8 @@ package com.tommasoamadori.pokedex.service;
 
 import com.tommasoamadori.pokedex.client.api.pokeapi.PokeApiClient;
 import com.tommasoamadori.pokedex.constant.Language;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.PokeApiResponse;
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.exception.NoValidFlavorTextException;
 import com.tommasoamadori.pokedex.exception.PokemonNotFoundException;
 import com.tommasoamadori.pokedex.exception.UnexpectedResponseBodyException;
