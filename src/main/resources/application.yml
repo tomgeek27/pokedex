@@ -1,0 +1,7 @@
+micronaut:
+  application:
+    name: pokedex
+  http:
+    services:
+      pokeapi:
+        url: https://pokeapi.co
