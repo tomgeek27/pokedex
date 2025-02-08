@@ -5,9 +5,11 @@ import com.tommasoamadori.pokedex.constant.Language;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.PokeApiResponse;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.exception.NoValidFlavorTextException;
+import com.tommasoamadori.pokedex.exception.PokemonNotFoundException;
 import com.tommasoamadori.pokedex.exception.UnexpectedResponseBodyException;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 
@@ -29,12 +31,18 @@ public class PokemonService implements PokemonBaseService {
      * @return A {@link PokemonInfoResponse} containing the Pokémon details.
      * @throws NoValidFlavorTextException if no English flavor text is found.
      * @throws UnexpectedResponseBodyException if the API response is invalid.
+     * @throws PokemonNotFoundException if the Pokemon does not exists.
      */
     @Override
     public PokemonInfoResponse getPokemonInfo(String name) {
         HttpResponse<PokeApiResponse> pokemonInfoResponse = pokeApiClient.getPokemonInfo(name);
 
-        PokeApiResponse pokemonInfo = pokemonInfoResponse.getBody().orElseThrow(() -> new UnexpectedResponseBodyException(PokeApiClient.class.getSimpleName()));
+        PokeApiResponse pokemonInfo = pokemonInfoResponse.getBody().orElseThrow(() -> {
+            if(pokemonInfoResponse.code() == HttpStatus.NOT_FOUND.getCode()) {
+                return new PokemonNotFoundException(name);
+            }
+            return new UnexpectedResponseBodyException(PokeApiClient.class.getSimpleName());
+        });
 
         String pokemonDescription = pokemonInfo.flavorTextEntries().stream()
                 .filter(flavorTextModel -> flavorTextModel.language().name().equals(Language.EN.getCode()))
