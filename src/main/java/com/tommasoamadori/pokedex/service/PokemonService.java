@@ -12,10 +12,12 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service responsible for retrieving Pokémon information.
  */
+@Slf4j
 @Singleton
 @Primary
 @RequiredArgsConstructor
@@ -39,19 +41,27 @@ public class PokemonService implements PokemonBaseService {
 
         PokeApiResponse pokemonInfo = pokemonInfoResponse.getBody().orElseThrow(() -> {
             if(pokemonInfoResponse.code() == HttpStatus.NOT_FOUND.getCode()) {
+                log.error("Pokémon {} not found", name);
                 return new PokemonNotFoundException(name);
             }
+
+            log.error("Empty response body");
             return new UnexpectedResponseBodyException(PokeApiClient.class.getSimpleName());
         });
 
         String pokemonDescription = pokemonInfo.flavorTextEntries().stream()
                 .filter(flavorTextModel -> flavorTextModel.language().name().equals(Language.EN.getCode()))
                 .findAny()
-                .orElseThrow(NoValidFlavorTextException::new)
+                .orElseThrow(() -> {
+                    log.error("No valid flavor text found");
+                    return new NoValidFlavorTextException();
+                })
                 .flavorText();
         String pokemonName = pokemonInfo.name();
         String pokemonHabitatName = pokemonInfo.habitat().name();
         Boolean isLegendaryPokemon = pokemonInfo.isLegendary();
+
+        log.info("Retrieved {} information", name);
 
         return PokemonInfoResponse
                 .builder()
