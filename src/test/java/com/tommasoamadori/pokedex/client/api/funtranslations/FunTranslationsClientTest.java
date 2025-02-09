@@ -2,6 +2,7 @@ package com.tommasoamadori.pokedex.client.api.funtranslations;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.tommasoamadori.pokedex.dto.request.funtranslations.TranslateRequest;
 import com.tommasoamadori.pokedex.dto.response.funtranslations.FunTranslationsResponse;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.http.HttpResponse;
@@ -48,14 +49,14 @@ class FunTranslationsClientTest {
                         .withRequestBody(containing("text=" + text))
                         .willReturn(okJson(responseBody)));
 
-        final HttpResponse<FunTranslationsResponse> funTranslationsResponse = funTranslationsClient.translateYoda(Map.of("text", text));
+        final HttpResponse<FunTranslationsResponse> funTranslationsResponse = funTranslationsClient.translateYoda(new TranslateRequest(text));
 
         final FunTranslationsResponse yodaTranslation = funTranslationsResponse.body();
 
         assertAll(
                 () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH)).withRequestBody(containing("text=" + text))),
                 () -> assertThat(yodaTranslation).isNotNull(),
-                () -> assertThat(yodaTranslation.contents().translated()).isEqualTo("Created by a scientist after years of horrific genesplicing and dna engineering experiments,  it was.")
+                () -> assertThat(yodaTranslation.contents().translated()).isEqualTo("Created by a scientist after years of horrific gene splicing and dna engineering experiments,  it was.")
         );
     }
 
@@ -70,7 +71,7 @@ class FunTranslationsClientTest {
                         .withRequestBody(containing("text=" + text))
                         .willReturn(okJson(responseBody)));
 
-        final HttpResponse<FunTranslationsResponse> funTranslationsResponse = funTranslationsClient.translateShakespeare(Map.of("text", text));
+        final HttpResponse<FunTranslationsResponse> funTranslationsResponse = funTranslationsClient.translateShakespeare(new TranslateRequest(text));
 
         final FunTranslationsResponse yodaTranslation = funTranslationsResponse.body();
 
@@ -79,7 +80,7 @@ class FunTranslationsClientTest {
                         .withRequestBody(containing("text=" + text))
                 ),
                 () -> assertThat(yodaTranslation).isNotNull(),
-                () -> assertThat(yodaTranslation.contents().translated()).isEqualTo("'t wast did create by a scientist after years of horrific genesplicing and dna engineering experiments.")
+                () -> assertThat(yodaTranslation.contents().translated()).isEqualTo("'t wast did create by a scientist after years of horrific gene splicing and dna engineering experiments.")
         );
     }
 
@@ -95,7 +96,7 @@ class FunTranslationsClientTest {
 
         assertThrows(
                 HttpClientResponseException.class,
-                () -> funTranslationsClient.translateYoda(Map.of("text", text))
+                () -> funTranslationsClient.translateYoda(new TranslateRequest(text))
         );
     }
 
@@ -113,7 +114,7 @@ class FunTranslationsClientTest {
 
         assertThrows(
                 HttpClientResponseException.class,
-                () -> funTranslationsClient.translateShakespeare(Map.of("text", text))
+                () -> funTranslationsClient.translateShakespeare(new TranslateRequest(text))
         );
     }
 

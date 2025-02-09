@@ -56,7 +56,7 @@ class PokeApiClientTest {
                 () -> assertThat(mewtwo.name()).isEqualTo(pokemonName),
                 () -> assertThat(mewtwo.habitat()).isEqualTo(new HabitatModel("rare")),
                 () -> assertThat(mewtwo.flavorTextEntries()).isNotEmpty(),
-                () -> assertThat(mewtwo.flavorTextEntries().get(0).flavorText()).contains("It was created by\na scientist after\nyears of horrific\fgene splicing"),
+                () -> assertThat(mewtwo.flavorTextEntries().get(0).flavorText()).isEqualTo("It was created by\na scientist after\nyears of horrific\fgene splicing and\nDNA engineering\nexperiments."),
                 () -> assertThat(mewtwo.flavorTextEntries().get(0).language().name()).isEqualTo("en")
         );
     }

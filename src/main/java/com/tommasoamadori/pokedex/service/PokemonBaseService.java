@@ -8,4 +8,6 @@ public interface PokemonBaseService {
 
     PokemonInfoResponse getPokemonInfo(String name);
 
+    PokemonInfoResponse getTranslatedPokemonInfo(String name);
+
 }

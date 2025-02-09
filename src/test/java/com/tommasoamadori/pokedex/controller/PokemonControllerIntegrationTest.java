@@ -53,10 +53,10 @@ public class PokemonControllerIntegrationTest {
                 () -> verify(getRequestedFor(urlEqualTo("/api/v2/pokemon-species/" + pokemonName))),
                 () -> assertThat(pokemonInfoResponse.code()).isEqualTo(HttpStatus.OK.getCode()),
                 () -> assertThat(pokemonInfoResponse.body()).isNotNull(),
-                () -> assertThat(pokemonInfoResponse.body().isLegendary()).isTrue(),
-                () -> assertThat(pokemonInfoResponse.body().name()).isEqualTo(pokemonName),
-                () -> assertThat(pokemonInfoResponse.body().habitat()).isEqualTo("rare"),
-                () -> assertThat(pokemonInfoResponse.body().description()).contains("It was created by\na scientist after\nyears of horrific\fgene splicing")
+                () -> assertThat(pokemonInfoResponse.body().getIsLegendary()).isTrue(),
+                () -> assertThat(pokemonInfoResponse.body().getName()).isEqualTo(pokemonName),
+                () -> assertThat(pokemonInfoResponse.body().getHabitat()).isEqualTo("rare"),
+                () -> assertThat(pokemonInfoResponse.body().getDescription()).isEqualTo("It was created by a scientist after years of horrific gene splicing and DNA engineering experiments.")
         );
     }
 
