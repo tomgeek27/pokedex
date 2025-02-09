@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.INSTANT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
@@ -32,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Property(name = "micronaut.http.services.pokeapi.url", value = "http://localhost:8888")
 class PokeApiClientTest {
 
+    public static final String POKEMON_SPECIES_PATH = "/api/v2/pokemon-species/";
     @Inject
     private PokeApiClient pokeApiClient;
 
@@ -42,21 +42,21 @@ class PokeApiClientTest {
 
         final String responseBody = Files.readString(Paths.get("src/test/resources/mewtwo.json"));
 
-        stubFor(get(urlEqualTo("/api/v2/pokemon-species/" + pokemonName))
+        stubFor(get(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))
                 .willReturn(okJson(responseBody)));
 
         final HttpResponse<PokeApiResponse> getPokemonInfoResponse = pokeApiClient.getPokemonInfo(pokemonName);
 
         final PokeApiResponse mewtwo = getPokemonInfoResponse.body();
 
-        verify(getRequestedFor(urlEqualTo("/api/v2/pokemon-species/" + pokemonName)));
+        verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName)));
 
         assertAll(
                 () -> assertThat(mewtwo.isLegendary()).isTrue(),
                 () -> assertThat(mewtwo.name()).isEqualTo(pokemonName),
                 () -> assertThat(mewtwo.habitat()).isEqualTo(new HabitatModel("rare")),
                 () -> assertThat(mewtwo.flavorTextEntries()).isNotEmpty(),
-                () -> assertThat(mewtwo.flavorTextEntries().get(0).flavorText()).contains("It was created by\na scientist after\nyears of horrific\fgene splicing"),
+                () -> assertThat(mewtwo.flavorTextEntries().get(0).flavorText()).isEqualTo("It was created by\na scientist after\nyears of horrific\fgene splicing and\nDNA engineering\nexperiments."),
                 () -> assertThat(mewtwo.flavorTextEntries().get(0).language().name()).isEqualTo("en")
         );
     }
@@ -77,7 +77,7 @@ class PokeApiClientTest {
     void getPokemonInfoWithErrorStatusShouldThrowsHttpClientResponseException(ResponseDefinitionBuilder response, int code) {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
 
-        stubFor(get(urlEqualTo("/api/v2/pokemon-species/" + pokemonName))
+        stubFor(get(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))
                 .willReturn(response));
 
         assertThrows(
@@ -91,7 +91,7 @@ class PokeApiClientTest {
     void getPokemonInfoWith404ShouldNotThrowsHttpClientResponseException() {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
 
-        stubFor(get(urlEqualTo("/api/v2/pokemon-species/" + pokemonName))
+        stubFor(get(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))
                 .willReturn(notFound()));
 
         assertDoesNotThrow(() -> pokeApiClient.getPokemonInfo(pokemonName));

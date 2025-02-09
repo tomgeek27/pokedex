@@ -647,7 +647,7 @@
   "hatch_counter": 120,
   "id": 150,
   "is_baby": false,
-  "is_legendary": true,
+  "is_legendary": false,
   "is_mythical": false,
   "name": "mewtwo",
   "names": [

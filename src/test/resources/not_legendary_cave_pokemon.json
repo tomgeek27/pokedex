@@ -640,14 +640,14 @@
     "url": "https://pokeapi.co/api/v2/growth-rate/1/"
   },
   "habitat": {
-    "name": "rare",
+    "name": "cave",
     "url": "https://pokeapi.co/api/v2/pokemon-habitat/5/"
   },
   "has_gender_differences": false,
   "hatch_counter": 120,
   "id": 150,
   "is_baby": false,
-  "is_legendary": true,
+  "is_legendary": false,
   "is_mythical": false,
   "name": "mewtwo",
   "names": [

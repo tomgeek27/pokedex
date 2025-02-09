@@ -1,6 +1,6 @@
 package com.tommasoamadori.pokedex.controller;
 
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.service.PokemonService;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
@@ -8,6 +8,7 @@ import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +32,7 @@ public class PokemonControllerTest {
     private HttpClient client;
 
     @Test
+    @DisplayName("GET /pokemon/some-pokemon should return response from getPokemonInfo")
     void getPokemonInfo() {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
         PokemonInfoResponse pokemonInfoResponse = Instancio.of(PokemonInfoResponse.class).withSeed(1).create();
@@ -41,6 +43,22 @@ public class PokemonControllerTest {
 
         assertAll(
                 () -> verify(pokemonService, times(1)).getPokemonInfo(eq(pokemonName)),
+                () -> assertThat(response).isEqualTo(pokemonInfoResponse)
+        );
+    }
+
+    @Test
+    @DisplayName("GET /pokemon/translated/some-pokemon should return response from getTranslatedPokemonInfo")
+    void getTranslatedPokemonInfo() {
+        final String pokemonName = Instancio.of(String.class).withSeed(1).create();
+        PokemonInfoResponse pokemonInfoResponse = Instancio.of(PokemonInfoResponse.class).withSeed(1).create();
+
+        when(pokemonService.getTranslatedPokemonInfo(eq(pokemonName))).thenReturn(pokemonInfoResponse);
+
+        PokemonInfoResponse response = client.toBlocking().retrieve("/translated/" + pokemonName, PokemonInfoResponse.class);
+
+        assertAll(
+                () -> verify(pokemonService, times(1)).getTranslatedPokemonInfo(eq(pokemonName)),
                 () -> assertThat(response).isEqualTo(pokemonInfoResponse)
         );
     }

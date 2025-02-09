@@ -1,9 +1,13 @@
 package com.tommasoamadori.pokedex.service;
 
+import com.tommasoamadori.pokedex.client.api.funtranslations.FunTranslationsClient;
 import com.tommasoamadori.pokedex.client.api.pokeapi.PokeApiClient;
 import com.tommasoamadori.pokedex.constant.Language;
+import com.tommasoamadori.pokedex.dto.request.funtranslations.TranslateRequest;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
+import com.tommasoamadori.pokedex.dto.response.funtranslations.FunTranslationsResponse;
+import com.tommasoamadori.pokedex.dto.response.funtranslations.model.TranslationContentModel;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.PokeApiResponse;
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.exception.NoValidFlavorTextException;
 import com.tommasoamadori.pokedex.exception.PokemonNotFoundException;
 import com.tommasoamadori.pokedex.exception.UnexpectedResponseBodyException;
@@ -13,6 +17,10 @@ import io.micronaut.http.HttpStatus;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Service responsible for retrieving Pokémon information.
@@ -24,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PokemonService implements PokemonBaseService {
 
     private final PokeApiClient pokeApiClient;
+    private final FunTranslationsClient funTranslationsClient;
 
     /**
      * Retrieves information about a Pokémon, including its name,
@@ -37,6 +46,40 @@ public class PokemonService implements PokemonBaseService {
      */
     @Override
     public PokemonInfoResponse getPokemonInfo(String name) {
+        return retrievePokemonInfo(name);
+    }
+
+    /**
+     * Retrieves information about a Pokémon and returns its description
+     * translated into Yoda or Shakespeare style based on its characteristics.
+     *
+     * <p>
+     * Translation rules:
+     * <ol>
+     *     <li>If the Pokémon's habitat is "cave" or it is legendary, apply the Yoda translation.</li>
+     *     <li>Otherwise, apply the Shakespeare translation.</li>
+     *     <li>If translation fails, the original description is returned.</li>
+     * </ol>
+     * </p>
+     *
+     * @param name The name of the Pokémon to retrieve.
+     * @return A {@link PokemonInfoResponse} containing the Pokémon details with translated description.
+     */
+    @Override
+    public PokemonInfoResponse getTranslatedPokemonInfo(String name) {
+        PokemonInfoResponse pokemonInfoResponse = retrievePokemonInfo(name);
+
+        Optional<String> oTranslation = tryTranslateDescription(pokemonInfoResponse);
+
+        oTranslation.ifPresent((translation) -> {
+            log.info("Successfully retrieved translation for {}", name);
+            pokemonInfoResponse.setDescription(translation);
+        });
+
+        return pokemonInfoResponse;
+    }
+
+    private PokemonInfoResponse retrievePokemonInfo(String name) {
         HttpResponse<PokeApiResponse> pokemonInfoResponse = pokeApiClient.getPokemonInfo(name);
 
         PokeApiResponse pokemonInfo = pokemonInfoResponse.getBody().orElseThrow(() -> {
@@ -56,7 +99,8 @@ public class PokemonService implements PokemonBaseService {
                     log.error("No valid flavor text found");
                     return new NoValidFlavorTextException();
                 })
-                .flavorText();
+                .flavorText()
+                .replaceAll("\\p{C}", " ");
         String pokemonName = pokemonInfo.name();
         String pokemonHabitatName = pokemonInfo.habitat().name();
         Boolean isLegendaryPokemon = pokemonInfo.isLegendary();
@@ -70,5 +114,32 @@ public class PokemonService implements PokemonBaseService {
                 .description(pokemonDescription)
                 .isLegendary(isLegendaryPokemon)
                 .build();
+    }
+
+    private Optional<String> tryTranslateDescription(PokemonInfoResponse pokemonInfo) {
+        try {
+            return fetchTranslation(pokemonInfo).getBody()
+                    .map(FunTranslationsResponse::contents)
+                    .map(TranslationContentModel::translated);
+        } catch(Exception e) {
+            log.error("Something went wrong during translation: {}", e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
+    private HttpResponse<FunTranslationsResponse> fetchTranslation(PokemonInfoResponse pokemonInfo) {
+        final boolean shouldUseYodaTranslation = Objects.equals(pokemonInfo.getHabitat(), "cave") || pokemonInfo.getIsLegendary();
+        final TranslateRequest requestBody = new TranslateRequest(pokemonInfo.getDescription());
+
+        Function<TranslateRequest, HttpResponse<FunTranslationsResponse>> translationFunction =
+                shouldUseYodaTranslation
+                        ? funTranslationsClient::translateYoda
+                        : funTranslationsClient::translateShakespeare;
+
+        log.info("Retrieving {} translation",
+                shouldUseYodaTranslation ? "yoda" : "shakespeare");
+
+        return translationFunction.apply(requestBody);
     }
 }

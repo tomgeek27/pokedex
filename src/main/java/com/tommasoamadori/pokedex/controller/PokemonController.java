@@ -1,6 +1,6 @@
 package com.tommasoamadori.pokedex.controller;
 
-import com.tommasoamadori.pokedex.dto.response.pokeapi.PokemonInfoResponse;
+import com.tommasoamadori.pokedex.dto.response.PokemonInfoResponse;
 import com.tommasoamadori.pokedex.exception.PokemonNotFoundException;
 import com.tommasoamadori.pokedex.service.PokemonBaseService;
 import io.micronaut.http.HttpResponse;
@@ -49,6 +49,25 @@ public class PokemonController {
             @Parameter(description = "Pokémon name")
             @PathVariable @NotBlank String name) {
         return pokemonService.getPokemonInfo(name);
+    }
+
+    /**
+     * Get information about a specific Pokémon by name with fun translated description.
+     *
+     * @param name The name of the Pokémon.
+     * @return The Pokémon information with fun translated description.
+     */
+    @Operation(
+            summary = "Get information about a specific Pokémon by name with a fun description translation",
+            description = "Fetches detailed information with a fun description translation about a Pokémon based on its name"
+    )
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved Pokémon information with translated description", content = @Content(schema = @Schema(implementation = PokemonInfoResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Pokémon not found")
+    @Get(value = "translated/{name}", produces = MediaType.APPLICATION_JSON)
+    public PokemonInfoResponse translatedPokemon(
+            @Parameter(description = "Pokémon name")
+            @PathVariable @NotBlank String name) {
+        return pokemonService.getTranslatedPokemonInfo(name);
     }
 
     @Error(exception = PokemonNotFoundException.class)
