@@ -11,9 +11,9 @@ import com.tommasoamadori.pokedex.dto.response.pokeapi.model.FlavorLanguageModel
 import com.tommasoamadori.pokedex.dto.response.pokeapi.model.FlavorTextModel;
 import com.tommasoamadori.pokedex.dto.response.pokeapi.model.HabitatModel;
 import com.tommasoamadori.pokedex.exception.NoValidFlavorTextException;
+import com.tommasoamadori.pokedex.exception.PokemonNotFoundException;
 import com.tommasoamadori.pokedex.exception.UnexpectedResponseBodyException;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -160,7 +160,7 @@ public class PokemonServiceTest {
     }
 
     @Test
-    @DisplayName("getTranslatedPokemonInfo should call pokeApiClient, funTranslationClient with shakespeare translation when is not legendary pokémon")
+    @DisplayName("getTranslatedPokemonInfo should call pokeApiClient, funTranslationClient with shakespeare translation when is not legendary and rare pokémon")
     void getTranslatedPokemonInfoShouldReturnShakespeareTranslation() {
         final PokeApiResponse notLegendaryPokemon = Instancio
                 .of(PokeApiResponse.class)
@@ -191,7 +191,6 @@ public class PokemonServiceTest {
                 () -> assertThat(pokemonInfo.getName()).isEqualTo(notLegendaryPokemon.name())
         );
     }
-
 
     @Test
     @DisplayName("getTranslatedPokemonInfo should maintain the same description when some exception occurs during translations")
