@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Service responsible for retrieving Pokémon information.
@@ -70,7 +71,10 @@ public class PokemonService implements PokemonBaseService {
 
         Optional<String> oTranslation = tryTranslateDescription(pokemonInfoResponse);
 
-        oTranslation.ifPresent(pokemonInfoResponse::setDescription);
+        oTranslation.ifPresent((translation) -> {
+            log.info("Successfully retrieved translation for {}", name);
+            pokemonInfoResponse.setDescription(translation);
+        });
 
         return pokemonInfoResponse;
     }
@@ -128,8 +132,14 @@ public class PokemonService implements PokemonBaseService {
         final boolean shouldUseYodaTranslation = Objects.equals(pokemonInfo.getHabitat(), "cave") || pokemonInfo.getIsLegendary();
         final TranslateRequest requestBody = new TranslateRequest(pokemonInfo.getDescription());
 
-        return shouldUseYodaTranslation
-                ? funTranslationsClient.translateYoda(requestBody)
-                : funTranslationsClient.translateShakespeare(requestBody);
+        Function<TranslateRequest, HttpResponse<FunTranslationsResponse>> translationFunction =
+                shouldUseYodaTranslation
+                        ? funTranslationsClient::translateYoda
+                        : funTranslationsClient::translateShakespeare;
+
+        log.info("Retrieving {} translation",
+                shouldUseYodaTranslation ? "yoda" : "shakespeare");
+
+        return translationFunction.apply(requestBody);
     }
 }
