@@ -100,7 +100,8 @@ public class PokemonIntegrationServiceTest {
 
     @CsvSource({
             "not_legendary_cave_pokemon.json,cave,false",
-            "mewtwo.json,rare,true"
+            "mewtwo.json,rare,true",
+            "legendary_cave_pokemon.json,cave,true"
     })
     @ParameterizedTest(name = "getTranslatedPokemonInfo should return PokemonInfo with yoda translation when legendary is {2} and habitat is {1}")
     void getTranslatedPokemonInfoShouldReturnPokemonInfoWithYodaTranslation(String filename, String habitat, boolean isLegendary) throws IOException {
