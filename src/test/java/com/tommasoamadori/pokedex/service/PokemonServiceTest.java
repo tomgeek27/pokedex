@@ -125,6 +125,16 @@ public class PokemonServiceTest {
         assertThrows(UnexpectedResponseBodyException.class, () -> pokemonService.getPokemonInfo(pokemonName));
     }
 
+    @Test
+    @DisplayName("getPokemonInfo should throw PokemonNotFoundException if notFound status is returned from PokeApiClient")
+    void getPokemonInfoShouldThrowWithNotFoundResponse() {
+        final String pokemonName = Instancio.of(String.class).withSeed(1).create();
+
+        when(pokeApiClient.getPokemonInfo(pokemonName)).thenReturn(HttpResponse.notFound());
+
+        assertThrows(PokemonNotFoundException.class, () -> pokemonService.getPokemonInfo(pokemonName));
+    }
+
     @MethodSource("providePokeApiResponseForYodaTranslation")
     @ParameterizedTest(name = "getTranslatedPokemonInfo should call pokeApiClient, funTranslationClient with yoda translation when is {1} pokémon")
     void getTranslatedPokemonInfoShouldReturnYodaTranslationWhenIsLegendaryPokemon(PokeApiResponse pokeApiResponse, String characteristic) {
