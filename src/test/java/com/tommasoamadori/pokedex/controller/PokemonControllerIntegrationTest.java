@@ -55,18 +55,23 @@ public class PokemonControllerIntegrationTest {
         HttpResponse<PokemonInfoResponse> pokemonInfoResponse = client.toBlocking().exchange(pokemonName, PokemonInfoResponse.class);
 
         assertAll(
-                () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
                 () -> assertThat(pokemonInfoResponse.code()).isEqualTo(HttpStatus.OK.getCode()),
                 () -> assertThat(pokemonInfoResponse.body()).isNotNull(),
-                () -> assertThat(pokemonInfoResponse.body().getIsLegendary()).isTrue(),
-                () -> assertThat(pokemonInfoResponse.body().getName()).isEqualTo(pokemonName),
-                () -> assertThat(pokemonInfoResponse.body().getHabitat()).isEqualTo("rare"),
-                () -> assertThat(pokemonInfoResponse.body().getDescription()).isEqualTo("It was created by a scientist after years of horrific gene splicing and DNA engineering experiments.")
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName)))
+        );
+
+        PokemonInfoResponse pokemonInfo = pokemonInfoResponse.body();
+
+        assertAll(
+                () -> assertThat(pokemonInfo.getIsLegendary()).isTrue(),
+                () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
+                () -> assertThat(pokemonInfo.getHabitat()).isEqualTo("rare"),
+                () -> assertThat(pokemonInfo.getDescription()).isEqualTo("It was created by a scientist after years of horrific gene splicing and DNA engineering experiments.")
         );
     }
 
     @MethodSource("provideHttpError")
-    @ParameterizedTest(name = "GET /pokemon/some-pokemon with {0} should return {2}")
+    @ParameterizedTest(name = "GET /pokemon/some-pokemon in case {0} should return {2}")
     void getPokemonInfoWhenGetErrorFormPokeapiShouldReturnErrors(String errorCaseDescription, ResponseDefinitionBuilder response, int code) {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
 
@@ -75,7 +80,10 @@ public class PokemonControllerIntegrationTest {
 
         HttpClientResponseException httpClientResponseException = assertThrows(HttpClientResponseException.class, () -> client.toBlocking().retrieve(pokemonName));
 
-        assertThat(httpClientResponseException.code()).isEqualTo(code);
+        assertAll(
+                () -> assertThat(httpClientResponseException.code()).isEqualTo(code),
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName)))
+        );
     }
 
     @Test
@@ -97,14 +105,20 @@ public class PokemonControllerIntegrationTest {
         HttpResponse<PokemonInfoResponse> pokemonInfoResponse = client.toBlocking().exchange("translated/" + pokemonName, PokemonInfoResponse.class);
 
         assertAll(
-                () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
-                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
                 () -> assertThat(pokemonInfoResponse.code()).isEqualTo(HttpStatus.OK.getCode()),
                 () -> assertThat(pokemonInfoResponse.body()).isNotNull(),
-                () -> assertThat(pokemonInfoResponse.body().getIsLegendary()).isTrue(),
-                () -> assertThat(pokemonInfoResponse.body().getName()).isEqualTo(pokemonName),
-                () -> assertThat(pokemonInfoResponse.body().getHabitat()).isEqualTo("rare"),
-                () -> assertThat(pokemonInfoResponse.body().getDescription()).isEqualTo("Created by a scientist after years of horrific gene splicing and dna engineering experiments,  it was.")
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
+                () -> verify(exactly(1), postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
+                () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH)))
+        );
+
+        PokemonInfoResponse pokemonInfo = pokemonInfoResponse.body();
+
+        assertAll(
+                () -> assertThat(pokemonInfo.getIsLegendary()).isTrue(),
+                () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
+                () -> assertThat(pokemonInfo.getHabitat()).isEqualTo("rare"),
+                () -> assertThat(pokemonInfo.getDescription()).isEqualTo("Created by a scientist after years of horrific gene splicing and dna engineering experiments,  it was.")
         );
     }
 
@@ -127,19 +141,25 @@ public class PokemonControllerIntegrationTest {
         HttpResponse<PokemonInfoResponse> pokemonInfoResponse = client.toBlocking().exchange("translated/" + pokemonName, PokemonInfoResponse.class);
 
         assertAll(
-                () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
-                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH))),
                 () -> assertThat(pokemonInfoResponse.code()).isEqualTo(HttpStatus.OK.getCode()),
                 () -> assertThat(pokemonInfoResponse.body()).isNotNull(),
-                () -> assertThat(pokemonInfoResponse.body().getIsLegendary()).isFalse(),
-                () -> assertThat(pokemonInfoResponse.body().getName()).isEqualTo(pokemonName),
-                () -> assertThat(pokemonInfoResponse.body().getHabitat()).isEqualTo("rare"),
-                () -> assertThat(pokemonInfoResponse.body().getDescription()).isEqualTo("'t wast did create by a scientist after years of horrific gene splicing and dna engineering experiments.")
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
+                () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
+                () -> verify(exactly(1), postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH)))
+        );
+
+        PokemonInfoResponse pokemonInfo = pokemonInfoResponse.body();
+
+        assertAll(
+                () -> assertThat(pokemonInfo.getIsLegendary()).isFalse(),
+                () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
+                () -> assertThat(pokemonInfo.getHabitat()).isEqualTo("rare"),
+                () -> assertThat(pokemonInfo.getDescription()).isEqualTo("'t wast did create by a scientist after years of horrific gene splicing and dna engineering experiments.")
         );
     }
 
     @MethodSource("provideHttpError")
-    @ParameterizedTest(name = "GET /pokemon/translated/some-pokemon with {0} should return {2}")
+    @ParameterizedTest(name = "GET /pokemon/translated/some-pokemon in case {0} should return {2}")
     void getTranslatedPokemonInfoWhenGetErrorFormPokeapiShouldReturnErrors(String errorCaseDescription, ResponseDefinitionBuilder response, int code) {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
 
@@ -148,7 +168,12 @@ public class PokemonControllerIntegrationTest {
 
         HttpClientResponseException httpClientResponseException = assertThrows(HttpClientResponseException.class, () -> client.toBlocking().retrieve(pokemonName));
 
-        assertThat(httpClientResponseException.code()).isEqualTo(code);
+        assertAll(
+            () -> verify(exactly(1), getRequestedFor(urlPathEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
+            () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
+            () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH))),
+            () -> assertThat(httpClientResponseException.code()).isEqualTo(code)
+        );
     }
 
     @Test
@@ -170,14 +195,15 @@ public class PokemonControllerIntegrationTest {
 
         assertAll(
                 () -> assertThat(pokemonInfoResponse.code()).isEqualTo(HttpStatus.OK.getCode()),
-                () -> assertThat(pokemonInfoResponse.body()).isNotNull()
+                () -> assertThat(pokemonInfoResponse.body()).isNotNull(),
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
+                () -> verify(exactly(1), postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
+                () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH)))
         );
 
         PokemonInfoResponse pokemonInfo = pokemonInfoResponse.body();
 
         assertAll(
-                () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
-                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
                 () -> assertThat(pokemonInfo.getIsLegendary()).isTrue(),
                 () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
                 () -> assertThat(pokemonInfo.getHabitat()).isEqualTo("rare"),
