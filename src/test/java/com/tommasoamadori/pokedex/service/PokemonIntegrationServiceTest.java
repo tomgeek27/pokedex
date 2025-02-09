@@ -95,7 +95,7 @@ public class PokemonIntegrationServiceTest {
 
         assertThrows(NoValidFlavorTextException.class, () -> pokemonService.getPokemonInfo(pokemonName));
 
-        verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName)));
+        verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName)));
     }
 
     @CsvSource({
@@ -122,7 +122,7 @@ public class PokemonIntegrationServiceTest {
 
         assertAll(
                 () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
-                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
+                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH)).withRequestBody(matching("text=.*"))),
                 () -> assertThat(pokemonInfo.getIsLegendary()).isEqualTo(isLegendary),
                 () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
                 () -> assertThat(pokemonInfo.getHabitat()).isEqualTo(habitat),
@@ -131,7 +131,7 @@ public class PokemonIntegrationServiceTest {
     }
 
     @Test
-    @DisplayName("getTranslatedPokemonInfo should return PokemonInfo with shakespeare translation when legendary is and habitat is rare")
+    @DisplayName("getTranslatedPokemonInfo should return PokemonInfo with shakespeare translation when legendary is false and habitat is not cave")
     void getTranslatedPokemonInfoShouldReturnPokemonInfoWithShakespeareTranslation() throws IOException {
         final String pokemonName = "mewtwo";
 
@@ -149,8 +149,9 @@ public class PokemonIntegrationServiceTest {
         PokemonInfoResponse pokemonInfo = pokemonService.getTranslatedPokemonInfo(pokemonName);
 
         assertAll(
-                () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
-                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH))),
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
+                () -> verify(exactly(1), postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH)).withRequestBody(matching("text=.*"))),
+                () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
                 () -> assertThat(pokemonInfo.getIsLegendary()).isFalse(),
                 () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
                 () -> assertThat(pokemonInfo.getHabitat()).isEqualTo("rare"),
@@ -168,22 +169,20 @@ public class PokemonIntegrationServiceTest {
         stubFor(get(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))
                 .willReturn(okJson(pokemonInfoResponseBody)));
 
-        final String pokemonInfoDescription = "It was created by a scientist after years of horrific gene splicing and DNA engineering experiments.";
-
-        stubFor(
-                post(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH))
-                        .withQueryParam("text", equalTo(pokemonInfoDescription))
+        stubFor(post(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH))
+                        .withRequestBody(matching("text=.*"))
                         .willReturn(serverError()));
 
         PokemonInfoResponse pokemonInfo = pokemonService.getTranslatedPokemonInfo(pokemonName);
 
         assertAll(
-                () -> verify(getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
-                () -> verify(postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH))),
+                () -> verify(exactly(1), getRequestedFor(urlEqualTo(POKEMON_SPECIES_PATH + pokemonName))),
+                () -> verify(exactly(1), postRequestedFor(urlPathEqualTo(TRANSLATE_SHAKESPEARE_PATH)).withRequestBody(matching("text=.*"))),
+                () -> verify(exactly(0), postRequestedFor(urlPathEqualTo(TRANSLATE_YODA_PATH))),
                 () -> assertThat(pokemonInfo.getIsLegendary()).isFalse(),
                 () -> assertThat(pokemonInfo.getName()).isEqualTo(pokemonName),
                 () -> assertThat(pokemonInfo.getHabitat()).isEqualTo("rare"),
-                () -> assertThat(pokemonInfo.getDescription()).isEqualTo(pokemonInfoDescription)
+                () -> assertThat(pokemonInfo.getDescription()).isEqualTo("It was created by a scientist after years of horrific gene splicing and DNA engineering experiments.")
         );
     }
 }
