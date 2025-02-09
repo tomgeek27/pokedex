@@ -45,4 +45,19 @@ public class PokemonControllerTest {
         );
     }
 
+    @Test
+    void getTranslatedPokemonInfo() {
+        final String pokemonName = Instancio.of(String.class).withSeed(1).create();
+        PokemonInfoResponse pokemonInfoResponse = Instancio.of(PokemonInfoResponse.class).withSeed(1).create();
+
+        when(pokemonService.getTranslatedPokemonInfo(eq(pokemonName))).thenReturn(pokemonInfoResponse);
+
+        PokemonInfoResponse response = client.toBlocking().retrieve("/translated/" + pokemonName, PokemonInfoResponse.class);
+
+        assertAll(
+                () -> verify(pokemonService, times(1)).getTranslatedPokemonInfo(eq(pokemonName)),
+                () -> assertThat(response).isEqualTo(pokemonInfoResponse)
+        );
+    }
+
 }

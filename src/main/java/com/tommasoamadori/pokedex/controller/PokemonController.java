@@ -51,6 +51,25 @@ public class PokemonController {
         return pokemonService.getPokemonInfo(name);
     }
 
+    /**
+     * Get information about a specific Pokémon by name with fun translated description.
+     *
+     * @param name The name of the Pokémon.
+     * @return The Pokémon information with fun translated description.
+     */
+    @Operation(
+            summary = "Get information about a specific Pokémon by name with a fun description translation",
+            description = "Fetches detailed information with a fun description translation about a Pokémon based on its name"
+    )
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved Pokémon information with translated description", content = @Content(schema = @Schema(implementation = PokemonInfoResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Pokémon not found")
+    @Get(value = "translated/{name}", produces = MediaType.APPLICATION_JSON)
+    public PokemonInfoResponse translatedPokemon(
+            @Parameter(description = "Pokémon name")
+            @PathVariable @NotBlank String name) {
+        return pokemonService.getTranslatedPokemonInfo(name);
+    }
+
     @Error(exception = PokemonNotFoundException.class)
     public HttpResponse<String> handlePokemonNotFound(PokemonNotFoundException e) {
         return HttpResponse.status(HttpStatus.NOT_FOUND).body(e.getMessage());

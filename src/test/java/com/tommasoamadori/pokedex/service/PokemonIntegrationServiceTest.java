@@ -31,9 +31,9 @@ public class PokemonIntegrationServiceTest {
     @Inject
     PokemonBaseService pokemonService;
 
-    public static final String POKEMON_SPECIES_PATH = "/api/v2/pokemon-species/";
-    public static final String TRANSLATE_YODA_PATH = "/translate/yoda";
-    public static final String TRANSLATE_SHAKESPEARE_PATH = "/translate/shakespeare";
+    private static final String POKEMON_SPECIES_PATH = "/api/v2/pokemon-species/";
+    private static final String TRANSLATE_YODA_PATH = "/translate/yoda";
+    private static final String TRANSLATE_SHAKESPEARE_PATH = "/translate/shakespeare";
 
     @Test
     @DisplayName("getPokemonInfo should return valid PokemonInfo when PokeApiClient response is valid")
