@@ -8,6 +8,7 @@ import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +32,7 @@ public class PokemonControllerTest {
     private HttpClient client;
 
     @Test
+    @DisplayName("GET /pokemon/some-pokemon should return response from getPokemonInfo")
     void getPokemonInfo() {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
         PokemonInfoResponse pokemonInfoResponse = Instancio.of(PokemonInfoResponse.class).withSeed(1).create();
@@ -46,6 +48,7 @@ public class PokemonControllerTest {
     }
 
     @Test
+    @DisplayName("GET /pokemon/translated/some-pokemon should return response from getTranslatedPokemonInfo")
     void getTranslatedPokemonInfo() {
         final String pokemonName = Instancio.of(String.class).withSeed(1).create();
         PokemonInfoResponse pokemonInfoResponse = Instancio.of(PokemonInfoResponse.class).withSeed(1).create();
