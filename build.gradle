@@ -20,8 +20,8 @@ dependencies {
 
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("io.micronaut.validation:micronaut-validation")
+    implementation("io.micronaut:micronaut-http-client")
 
-    compileOnly("io.micronaut:micronaut-http-client")
     compileOnly("org.projectlombok:lombok:1.18.36")
     compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
 
