@@ -4,7 +4,7 @@ plugins {
     id("io.micronaut.aot") version "4.4.4"
 }
 
-version = "0.1"
+version = "1.0.0"
 group = "com.tommasoamadori.pokedex"
 
 repositories {
@@ -14,10 +14,30 @@ repositories {
 dependencies {
     annotationProcessor("io.micronaut:micronaut-http-validation")
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("io.micronaut.openapi:micronaut-openapi")
+
     implementation("io.micronaut.serde:micronaut-serde-jackson")
-    compileOnly("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut.validation:micronaut-validation")
+    implementation("io.micronaut:micronaut-http-client")
+
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
+
     runtimeOnly("ch.qos.logback:logback-classic")
+    runtimeOnly("org.yaml:snakeyaml")
+
     testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.wiremock:wiremock:3.11.0")
+    testImplementation("org.assertj:assertj-core:3.27.2")
+    testImplementation("org.mockito:mockito-core:2.1.0")
+    testImplementation("org.instancio:instancio-junit:5.3.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.3.0")
+
+    testCompileOnly("org.projectlombok:lombok:1.18.36")
+
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 }
 
 

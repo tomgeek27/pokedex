@@ -1,4 +1,4 @@
-package com.tommasoamadori;
+package com.tommasoamadori.pokedex;
 
 import io.micronaut.runtime.EmbeddedApplication;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;

@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: pokedex
+  http:
+    services:
+      pokeapi:
+        url: https://pokeapi.co
+      funtranslations:
+        url: https://api.funtranslations.com
