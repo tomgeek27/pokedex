@@ -20,10 +20,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller for managing Pokémon information requests.
  */
+@Slf4j
 @OpenAPIDefinition
 @ExecuteOn(TaskExecutors.BLOCKING)
 @Controller("pokemon")
@@ -48,7 +50,11 @@ public class PokemonController {
     public PokemonInfoResponse pokemon(
             @Parameter(description = "Pokémon name")
             @PathVariable @NotBlank String name) {
-        return pokemonService.getPokemonInfo(name);
+        log.info("Incoming info request for {}", name);
+        PokemonInfoResponse pokemonInfo = pokemonService.getPokemonInfo(name);
+        log.info("{} info: {}", name, pokemonInfo);
+
+        return pokemonInfo;
     }
 
     /**
@@ -67,7 +73,11 @@ public class PokemonController {
     public PokemonInfoResponse translatedPokemon(
             @Parameter(description = "Pokémon name")
             @PathVariable @NotBlank String name) {
-        return pokemonService.getTranslatedPokemonInfo(name);
+        log.info("Incoming translated info request for {}", name);
+        PokemonInfoResponse translatedPokemonInfo = pokemonService.getTranslatedPokemonInfo(name);
+        log.info("{} translated info: {}", name, translatedPokemonInfo);
+
+        return translatedPokemonInfo;
     }
 
     @Error(exception = PokemonNotFoundException.class)
