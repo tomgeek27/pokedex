@@ -1,8 +1,10 @@
 # Pokedex
 
+This is a [Java Micronaut](https://micronaut.io/) project.
+
 ## Prerequisites
 
-The main requirements is the JDK. You may want use [**SDKMAN**](https://sdkman.io/) to easily handle all the JDK version on your local computer.
+The main requirements is the JDK (in this project the JDK 21 will be used). You may want use [**SDKMAN**](https://sdkman.io/) to easily handle all the JDK version on your local computer.
 
 ## How to run
 
@@ -44,6 +46,16 @@ Since this project comes with a Gradle Wrapper you are not required to install G
 
 This will start the server application on the default port 8080.
 
+## API Documentation
+
+The API specification can be auto-generated using the command:
+
+```bash
+./gradlew compileJava
+```
+
+and then you will be available at: `build/classes/java/main/META-INF/swagger/pokedex-1.0.0.yml`. You can use tools like Swagger UI to visualize it.
+
 ## What could be different for a Production environment
 
 ### Architectural and Performance Enhancements
@@ -58,3 +70,4 @@ First of all understanding better the requisites could help to manage in a prope
 
 * **Git Hooks** – Implementing automated hooks to enforce test execution before any code is pushed to guarantee an higher code quality and reduced regression problems.
 * **Application profiles** - Define several application profiles (`application-dev.yml` for instance) that reflect the deployed configuration leveraging on environment variables to manage profiles dynamically, ensuring flexibility and security. Use a secret management tool such as Infisical or HashiCorp Vault to securely inject sensitive configuration values, preventing hardcoded credentials and enhancing overall security.
+* **Pipeline** - Adopting a CI/CD pattern enables the automation of integration and deployment processes, improving reliability and avoiding tedious and error-prone manual operations. A pipeline could include running tests, building a properly versioned Docker image, publishing it to a Docker registry, and finally deploying it in a containerized environment.
